@@ -10,8 +10,10 @@ EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN value_default;
 END function_name;
+
+----EJEMPLO CREAR UNA FUNCION QUE CALCULE EL SALARIO EN DOLARES
 --QUERY
-SELECT ROUND(SUM(SALARY/6.91), 2) AS salary_dolar
+SELECT ROUND((SALARY/6.91), 2) AS salary_dolar
 FROM customer
 WHERE id = 1;
 ---FUNCTION SOLUTION
@@ -30,68 +32,10 @@ EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN 0;
 END convert_to_dolar;
----EXE
+
+---EXE EJECUCION INDIVIDUAL
 SELECT convert_to_dolar(1) FROM dual;
----EXE
+
+---EXE EJECUCION EN CONSULTA
 SELECT customer.*, convert_to_dolar(id) AS dolar
 FROM customer;
-
-
---postgress
-CREATE OR REPLACE FUNCTION convert_to_dolar(xid NUMERIC)
-RETURNS NUMERIC AS $$
-DECLARE
-    salary_dolar NUMERIC;
-BEGIN
-    -- Cuerpo de la función
-    SELECT ROUND(SUM(SALARY/6.91), 2) INTO salary_dolar
-    FROM customer
-    WHERE id = xid;
-
-    RETURN salary_dolar;
-EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        RETURN 0;
-END;
-$$ LANGUAGE plpgsql;
-
---mysql
-DELIMITER //
-
-CREATE FUNCTION convert_to_dolar(xid INT)
-RETURNS DECIMAL(10, 2)
-BEGIN
-    DECLARE salary_dolar DECIMAL(10, 2);
-
-    -- Cuerpo de la función
-    SELECT ROUND(SUM(SALARY/6.91), 2) INTO salary_dolar
-    FROM customer
-    WHERE id = xid;
-
-    IF salary_dolar IS NULL THEN
-        RETURN 0;
-    ELSE
-        RETURN salary_dolar;
-    END IF;
-END//
-
-DELIMITER ;
-
---sql server
-CREATE OR ALTER FUNCTION convert_to_dolar(@xid INT)
-RETURNS DECIMAL(10, 2)
-AS
-BEGIN
-    DECLARE @salary_dolar DECIMAL(10, 2);
-
-    -- Cuerpo de la función
-    SELECT @salary_dolar = ROUND(SUM(SALARY/6.91), 2)
-    FROM customer
-    WHERE id = @xid;
-
-    IF @salary_dolar IS NULL
-        RETURN 0;
-    ELSE
-        RETURN @salary_dolar;
-END;
-GO
